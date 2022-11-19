@@ -1,0 +1,4 @@
+cx_Oracle==8.3.0
+numpy==1.23.4
+pandas==1.5.1
+SQLAlchemy==1.4.44
