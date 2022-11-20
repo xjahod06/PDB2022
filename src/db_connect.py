@@ -28,13 +28,28 @@ def get_oracle_data(engine,show=True):
         print(rawData.head()) if show == True else None
         return rawData
 
-def insert_product(connection,title,images,description,sku,gtin13,brand,price,currency,in_stock):
+def insert_product(connection,product):
     sql = ('insert into products(title,images,description,sku,gtin13,brand,price,currency,in_stock,added_at) '
-        'values(:title,:images,:description,:sku,:gtin13,:brand,:price,:currency,:in_stock,:added_at)')
+        'values(:title,:images,:description,:sku,:gtin13,:brand,:price,:currency,:in_stock,:added_at)'
+        'returning \"_id\" into :python_var')
     try:
         with connection.cursor() as cursor:
-            cursor.execute(sql, [title,images,description,sku,gtin13,brand,price,currency,in_stock,time()])
-            return connection.commit()
+            newest_id_wrapper = cursor.var(cx_Oracle.NUMBER)
+            cursor.execute(sql, [
+                product.title,
+                product.images,
+                product.description,
+                product.sku,
+                product.gtin13,
+                product.brand,
+                product.price,
+                product.currency,
+                product.in_stock,
+                time(),
+                newest_id_wrapper
+            ])
+            connection.commit()
+            return newest_id_wrapper.getvalue()
     except cx_Oracle.Error as error:
         return "some of cx_Oracle.Error" + str(error)
 

@@ -32,18 +32,7 @@ class Product(BaseModel):
 @app.post("/products/")
 def read_item(product: Product):
     with connect_to_oracle_cursor(config['oracle_sql']['name'],config['oracle_sql']['password']) as connection:
-        return insert_product(
-            connection,
-            product.title,
-            product.images,
-            product.description,
-            product.sku,
-            product.gtin13,
-            product.brand,
-            product.price,
-            product.currency,
-            product.in_stock
-        )
+        return insert_product(connection,product)
     return 'error in oracle connection'
 
 @app.get("/products/", response_model=List[Product])
