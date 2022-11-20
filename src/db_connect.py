@@ -29,13 +29,13 @@ def get_oracle_data(engine,show=True):
         return rawData
 
 def connect_to_mongo(name,password):
-    return MongoClient(config['mongo_db']['uri'].format(name,password))['pdb']
+    return MongoClient("mongodb://{}:{}@localhost:28017/pdb?authSource=admin".format(name,password))['pdb']
 
 def df_to_mongo(db,df):
     db.products.insert_many(df.to_dict('records'), ordered=False)
     
 def get_mongo_data(db,show=True):
-    df = pd.DataFrame(list(mongoDb.myCollection.find()))
+    df = pd.DataFrame(list(mongoDb.products.find()))
     print(df.head()) if show == True else None
     return df
 
@@ -51,7 +51,15 @@ if __name__ == '__main__':
     df_to_sql_db(engine,df) 
     get_oracle_data(engine)
 
-    mongoDb = connect_to_mongo(config['mongo_db']['name'],config['mongo_db']['password']) 
+    mongoDb = connect_to_mongo(config['mongo_db']['name'],config['mongo_db']['password'])
+    
+    #removed previously inserted data
+    mongoDb.products.delete_many({})
     
     df_to_mongo(mongoDb,df)
     get_mongo_data(mongoDb)
+    
+    #query = mongoDb.products.find({"product_id" : 313486617})
+    #print(query[0])
+    #for q in query:
+    #    print(q)
