@@ -1,12 +1,23 @@
-from typing import Union
+from typing import Union, List
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
+from db_connect import *
+import json
+import configparser
+from pymongo import MongoClient
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+
+
+config = configparser.ConfigParser()
+config.read('config.conf')
+mongoDB = connect_to_mongo(config['mongo_db']['name'],config['mongo_db']['password'])
 
 app = FastAPI()
 
 class Product(BaseModel):
-    product_id: int
+    product_id: int = Field(alias="_id")
     title: str
     images: Union[str, None] = None
     description: Union[str, None] = None
@@ -20,25 +31,19 @@ class Product(BaseModel):
     
 @app.post("/products/")
 def read_item(product: Product):
-    pass
-    return product
+    with connect_to_oracle_cursor(config['oracle_sql']['name'],config['oracle_sql']['password']) as connection:
+        return insert_product(connection,product)
+    return 'error in oracle connection'
+
+@app.get("/products/", response_model=List[Product])
+def read_item():
+    query = mongoDB.products.find()
+    return [q for q in query]
 
 @app.get("/products/{product_id}", response_model=Product)
 def read_item(product_id: int):
-    pass
-    #TODO replace with product model
-    return {"product_id" : product_id,
-            "title" : title,
-            "images" : images,
-            "description" : description,
-            "sku" : sku,
-            "gtin13" : gtin13,
-            "brand" : brand,
-            "price" : price,
-            "currency" : currency,
-            "in_stock" : in_stock,
-            "added_at" : added_at
-            }
+    query = mongoDB.products.find({"_id" : product_id})
+    return query[0]
 
 @app.put("/products/{product_id}", response_model=Product)
 def read_item(product_id: int, product: Product):
