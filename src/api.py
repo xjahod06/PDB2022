@@ -16,18 +16,6 @@ mongoDB = connect_to_mongo(config['mongo_db']['name'],config['mongo_db']['passwo
 
 app = FastAPI()
 
-class OID(str):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        try:
-            return ObjectId(str(v))
-        except InvalidId:
-            raise ValueError("Not a valid ObjectId")
-
 class Product(BaseModel):
     product_id: int = Field(alias="_id")
     title: str
@@ -43,8 +31,20 @@ class Product(BaseModel):
     
 @app.post("/products/")
 def read_item(product: Product):
-    pass
-    return product
+    with connect_to_oracle_cursor(config['oracle_sql']['name'],config['oracle_sql']['password']) as connection:
+        return insert_product(
+            connection,
+            product.title,
+            product.images,
+            product.description,
+            product.sku,
+            product.gtin13,
+            product.brand,
+            product.price,
+            product.currency,
+            product.in_stock
+        )
+    return 'error in oracle connection'
 
 @app.get("/products/", response_model=List[Product])
 def read_item():

@@ -5,6 +5,7 @@ import downloadDB
 import configparser
 from pymongo import MongoClient
 import json
+from time import time
 
 def connect_to_oracle(name,password):
     dsn = cx_Oracle.makedsn(
@@ -15,8 +16,7 @@ def connect_to_oracle(name,password):
     return create_engine(f"oracle+cx_oracle://{name}:{password}@{dsn}")
 
 def connect_to_oracle_cursor(name,password):
-    conn = cx_Oracle.connect('{}/{}@gort.fit.vutbr.cz:1521/orclpdb'.format(name,password))
-    return conn.cursor()
+    return cx_Oracle.connect('{}/{}@gort.fit.vutbr.cz:1521/orclpdb'.format(name,password))
 
 def df_to_sql_db(engine,df):
     with engine.connect() as connection:
@@ -27,6 +27,16 @@ def get_oracle_data(engine,show=True):
         rawData = pd.read_sql_query("SELECT * FROM products", connection)
         print(rawData.head()) if show == True else None
         return rawData
+
+def insert_product(connection,title,images,description,sku,gtin13,brand,price,currency,in_stock):
+    sql = ('insert into products(title,images,description,sku,gtin13,brand,price,currency,in_stock,added_at) '
+        'values(:title,:images,:description,:sku,:gtin13,:brand,:price,:currency,:in_stock,:added_at)')
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql, [title,images,description,sku,gtin13,brand,price,currency,in_stock,time()])
+            return connection.commit()
+    except cx_Oracle.Error as error:
+        return "some of cx_Oracle.Error" + str(error)
 
 def connect_to_mongo(name,password):
     return MongoClient("mongodb://{}:{}@localhost:28017/pdb?authSource=admin".format(name,password))['pdb']
