@@ -1,52 +1,57 @@
-from typing import Union, List
-from fastapi import FastAPI
-from pydantic import BaseModel, Field
+from typing import List, Union
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.orm import Session
+
+import crud, models, schemas
+
 from datetime import datetime
 from db_connect import *
-import json
 import configparser
 from pymongo import MongoClient
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
 
 
 config = configparser.ConfigParser()
 config.read('config.conf')
 mongoDB = connect_to_mongo(config['mongo_db']['name'],config['mongo_db']['password'])
 
+engine = connect_to_oracle(config['oracle_sql']['name'],config['oracle_sql']['password'])
+sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+models.Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
 
-class Product(BaseModel):
-    product_id: int = Field(alias="_id")
-    title: str
-    images: Union[str, None] = None
-    description: Union[str, None] = None
-    sku: int
-    gtin13: int
-    brand: str
-    price: int
-    currency: str
-    in_stock: int
-    added_at: datetime
-    
+# Dependency
+def get_db():
+    db = sessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@app.post("/oracle/products/", response_model=schemas.Product)
+def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
+    return crud.create_product(db=db, product=product)
+
 @app.post("/products/")
-def read_item(product: Product):
+def read_item(product: schemas.Product):
     with connect_to_oracle_cursor(config['oracle_sql']['name'],config['oracle_sql']['password']) as connection:
         return insert_product(connection,product)
     return 'error in oracle connection'
 
-@app.get("/products/", response_model=List[Product])
+@app.get("/products/", response_model=List[schemas.Product])
 def read_item():
     query = mongoDB.products.find()
     return [q for q in query]
 
-@app.get("/products/{product_id}", response_model=Product)
+@app.get("/products/{product_id}", response_model=schemas.Product)
 def read_item(product_id: int):
     query = mongoDB.products.find({"_id" : product_id})
     return query[0]
 
-@app.put("/products/{product_id}", response_model=Product)
-def read_item(product_id: int, product: Product):
+@app.put("/products/{product_id}", response_model=schemas.Product)
+def read_item(product_id: int, product: schemas.Product):
     pass
     return product
 
