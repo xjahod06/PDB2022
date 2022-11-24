@@ -32,7 +32,10 @@ def get_db():
 
 @app.post("/oracle/products/", response_model=schemas.Product)
 def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
-    return crud.create_product(db=db, product=product)
+    db_product = crud.create_product(db=db, product=product)
+    if db_product is None:
+        raise HTTPException(status_code=400, detail="this product is already in DB")
+    return db_product
 
 @app.get("/oracle/products/{product_id}", response_model=schemas.Product)
 def read_product(product_id: int, db: Session = Depends(get_db)):
