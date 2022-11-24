@@ -4,11 +4,10 @@ from sqlalchemy.orm import sessionmaker
 
 import cx_Oracle
 import pandas as pd
-import downloadDB
 import configparser
 from pymongo import MongoClient
-import json
 from time import time
+import logging
 
 Base = declarative_base()
 
@@ -70,23 +69,30 @@ def get_mongo_data(db,show=True):
     return df
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
     config = configparser.ConfigParser()
     config.read('config.conf')
     name = config['oracle_sql']['name']
     password = config['oracle_sql']['password']
     
     engine = connect_to_oracle(name, password)
-    sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    logging.debug("started oracel engine")
     
     df = pd.read_csv('pdb_dataset.csv')
-    
+    logging.debug("loaded dataframe")
+    logging.debug("uploading df to oracle SQL")
     df_to_sql_db(engine,df) 
-    get_oracle_data(engine)
+    logging.debug("upload successfull")
+    get_oracle_data(engine,show=False)
 
     mongoDb = connect_to_mongo(config['mongo_db']['name'],config['mongo_db']['password'])
+    logging.debug("connected to mongoDB")
     
     #removed previously inserted data
     mongoDb.products.delete_many({})
+    logging.debug("deleted previous data")
     
+    logging.debug("uploading to mongoDB")
     df_to_mongo(mongoDb,df)
-    get_mongo_data(mongoDb)
+    logging.debug("upload succesfull")
+    get_mongo_data(mongoDb,show=False)
