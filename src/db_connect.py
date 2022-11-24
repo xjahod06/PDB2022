@@ -1,6 +1,9 @@
 from sqlalchemy import types, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Integer, String, DateTime, Text, UnicodeText, Float
+from datetime import datetime
+
 
 import cx_Oracle
 import pandas as pd
@@ -23,8 +26,21 @@ def connect_to_oracle_cursor(name,password):
     return cx_Oracle.connect('{}/{}@gort.fit.vutbr.cz:1521/orclpdb'.format(name,password))
 
 def df_to_sql_db(engine,df):
+    df_schema = {
+        "_id" : Integer,
+        "title" : String(256),
+        "images" : Text,
+        "description" : UnicodeText,
+        "sku" : Integer,
+        "gtin13" : Integer,
+        "brand" : String(20),
+        "price" : Float,
+        "currency" : String(6),
+        "in_stock" : Integer,
+        #"added_at" : DateTime,
+    }
     with engine.connect() as connection:
-        df.to_sql('products', connection, if_exists='replace')
+        df.to_sql('products', connection, if_exists='append', dtype=df_schema,index=False)
 
 def get_oracle_data(engine,show=True):
     with engine.connect() as connection:
