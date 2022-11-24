@@ -1,11 +1,16 @@
-import cx_Oracle
 from sqlalchemy import types, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+import cx_Oracle
 import pandas as pd
 import downloadDB
 import configparser
 from pymongo import MongoClient
 import json
 from time import time
+
+Base = declarative_base()
 
 def connect_to_oracle(name,password):
     dsn = cx_Oracle.makedsn(
@@ -71,6 +76,8 @@ if __name__ == '__main__':
     password = config['oracle_sql']['password']
     
     engine = connect_to_oracle(name, password)
+    sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    
     df = pd.read_csv('pdb_dataset.csv')
     
     df_to_sql_db(engine,df) 
@@ -83,8 +90,3 @@ if __name__ == '__main__':
     
     df_to_mongo(mongoDb,df)
     get_mongo_data(mongoDb)
-    
-    #query = mongoDb.products.find({"product_id" : 313486617})
-    #print(query[0])
-    #for q in query:
-    #    print(q)
