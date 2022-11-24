@@ -33,7 +33,7 @@ def df_to_sql_db(engine,df):
         "description" : UnicodeText,
         "sku" : Integer,
         "gtin13" : Integer,
-        "brand" : String(20),
+        "brand" : String(50),
         "price" : Float,
         "currency" : String(6),
         "in_stock" : Integer,

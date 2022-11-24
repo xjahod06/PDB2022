@@ -13,7 +13,7 @@ class Product(Base):
     description = Column(UnicodeText, default=None)
     sku = Column(Integer)
     gtin13 = Column(Integer)
-    brand = Column(String(20))
+    brand = Column(String(50))
     price = Column(Float)
     currency = Column(String(6))
     in_stock = Column(Integer)
