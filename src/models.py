@@ -17,4 +17,4 @@ class Product(Base):
     price = Column(Float)
     currency = Column(String(6))
     in_stock = Column(Integer)
-    added_at = Column(DateTime, default=datetime.utcnow)
+    added_at = Column(DateTime, default=datetime.utcnow, nullable=True)

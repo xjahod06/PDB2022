@@ -44,6 +44,11 @@ def read_product(product_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Product not found")
     return db_product
 
+@app.get("/oracle/products/", response_model=List[schemas.Product])
+def read_products(db: Session = Depends(get_db)):
+    products = crud.get_products(db)
+    return products
+
 @app.post("/products/")
 def read_item(product: schemas.Product):
     with connect_to_oracle_cursor(config['oracle_sql']['name'],config['oracle_sql']['password']) as connection:
