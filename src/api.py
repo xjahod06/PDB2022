@@ -70,22 +70,26 @@ def read_item(product_id: int, product: schemas.Product):
     pass
     return product
 
-@app.delete("/products/{product_id}")
-def read_item():
-    pass
-    return 200
+@app.delete("/products/{product_id}", status_code=200)
+def read_item(product_id: int):
+    result = mongoDB.products.delete_one({"_id" : product_id})
+    if result.deleted_count != 1:
+        raise HTTPException(status_code=404, detail="Item not found")
+    else:
+        return
 
-@app.get("/price/")
-def read_item(price: int):
-    pass
-    #TODO přesná cena (asi useless ?)
-    return None
+@app.get("/price/", response_model=List[schemas.Product])
+def read_item(price: float):
+    query = mongoDB.products.find({"price" : price})
+    return [q for q in query]
 
-@app.get("/priceRange/")
-def read_item(gt: Union[int,None] = 0,lt: Union[int,None] = None):
-    pass
-    #TODO rozsah cen
-    return None
+@app.get("/priceRange/", response_model=List[schemas.Product])
+def read_item(gt: Union[float,None] = 0, lt: Union[float,None] = None):
+    if lt:
+        query = mongoDB.products.find({"price" : {"$gt": gt, "$lt": lt}})
+    else:
+        query = mongoDB.products.find({"price" : {"$gt": gt}})
+    return [q for q in query]
 
 @app.get("/addedAt/")
 def read_item(time: datetime):
@@ -99,11 +103,13 @@ def read_item(gt: Union[datetime,None] = 0,lt: Union[datetime,None] = None):
     #TODO rozsad podle data přidání produktu
     return None
 
-@app.get("/inStockRange/")
+@app.get("/inStockRange/", response_model=List[schemas.Product])
 def read_item(gt: Union[int,None] = 0, lt: Union[int,None] = None):
-    pass
-    #TODO podle rozmezí počtu produktů na skladě
-    return None
+    if lt:
+        query = mongoDB.products.find({"in_stock" : {"$gt": gt, "$lt": lt}})
+    else:
+        query = mongoDB.products.find({"in_stock" : {"$gt": gt}})
+    return [q for q in query]
 
 @app.get("/category/{category}")
 def read_item(category: str):
@@ -111,14 +117,12 @@ def read_item(category: str):
     #TODO categorie jsou v sku tak to rozkličovat a vratit
     return None
 
-@app.get("/brand/{brand}")
+@app.get("/brand/{brand}", response_model=schemas.Product)
 def read_item(brand: str):
-    pass
-    #TODO vyhledavani podle značek
-    return None
+    query = mongoDB.products.find({"brand" : brand})
+    return query[0]
 
-@app.get("/inDescription/{key_word}")
+@app.get("/inDescription/{key_word}", response_model=List[schemas.Product])
 def read_item(key_word: str):
-    pass
-    #TODO filtrovat podle klíčových slov v popisu produktu
-    return None
+    query = mongoDB.products.find({"description" : {"$regex" : key_word}})
+    return [q for q in query]
