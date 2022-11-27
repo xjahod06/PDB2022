@@ -4,15 +4,17 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Integer, String, DateTime, Text, UnicodeText, Float
 from datetime import datetime
 
-
 import cx_Oracle
+import motor.motor_asyncio
 import pandas as pd
 import configparser
 from pymongo import MongoClient
 from time import time
 import logging
 
+
 Base = declarative_base()
+
 
 def connect_to_oracle(name,password):
     dsn = cx_Oracle.makedsn(
@@ -22,8 +24,10 @@ def connect_to_oracle(name,password):
     )
     return create_engine(f"oracle+cx_oracle://{name}:{password}@{dsn}")
 
+
 def connect_to_oracle_cursor(name,password):
     return cx_Oracle.connect('{}/{}@gort.fit.vutbr.cz:1521/orclpdb'.format(name,password))
+
 
 def df_to_sql_db(engine,df):
     df_schema = {
@@ -42,11 +46,13 @@ def df_to_sql_db(engine,df):
     with engine.connect() as connection:
         df.to_sql('products', connection, if_exists='append', dtype=df_schema,index=False)
 
+
 def get_oracle_data(engine,show=True):
     with engine.connect() as connection:
         rawData = pd.read_sql_query("SELECT * FROM products", connection)
         print(rawData.head()) if show == True else None
         return rawData
+
 
 def insert_product(connection,product):
     sql = ('insert into products(title,images,description,sku,gtin13,brand,price,currency,in_stock,added_at) '
@@ -76,6 +82,12 @@ def insert_product(connection,product):
 def connect_to_mongo(name,password):
     return MongoClient("mongodb://{}:{}@localhost:28017/pdb?authSource=admin".format(name,password))['pdb']
 
+
+def async_connect_to_mongo(name, password):
+    client = motor.motor_asyncio.AsyncIOMotorClient("mongodb://{}:{}@localhost:28017/pdb?authSource=admin".format(name,password))
+    return client['pdb']
+
+
 def df_to_mongo(db,df):
     db.products.insert_many(df.to_dict('records'), ordered=False)
     
@@ -83,6 +95,7 @@ def get_mongo_data(db,show=True):
     df = pd.DataFrame(list(mongoDb.products.find()))
     print(df.head()) if show == True else None
     return df
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)

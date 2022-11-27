@@ -11,7 +11,7 @@ class ProductBase(BaseModel):
     sku: int
     gtin13: int
     brand: str
-    price: int
+    price: float
     currency: str
     in_stock: int
     
