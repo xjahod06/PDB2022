@@ -3,11 +3,13 @@ import models
 import schemas
 from datetime import datetime
 
+
 def get_product(db: Session, product_id: int):
     return db.query(models.Product).filter(models.Product._id == product_id).first()
 
-def get_products(db: Session ):             #, skip: int = 0, limit: int = 100):
-    return db.query(models.Product).all()   #.offset(skip).limit(limit).all()
+
+def get_products(db: Session):  # , skip: int = 0, limit: int = 100):
+    return db.query(models.Product).all()  # .offset(skip).limit(limit).all()
 
 
 def create_product(db: Session, product: schemas.ProductCreate):
@@ -17,8 +19,10 @@ def create_product(db: Session, product: schemas.ProductCreate):
     db.refresh(db_product)
     return db_product
 
-def update_product(db: Session, product_id: int ,product: schemas.Product):
-    updated_product = db.query(models.Product).filter(models.Product._id == product_id).first()
+
+def update_product(db: Session, product_id: int, product: schemas.Product):
+    updated_product = db.query(models.Product).filter(
+        models.Product._id == product_id).first()
     updated_product.update_values(product.as_dict())
     db.commit()
-    return updated_product   
+    return updated_product
