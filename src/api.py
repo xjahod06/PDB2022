@@ -42,6 +42,24 @@ def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)
         if (res.inserted_id != db_product._id):
             raise HTTPException(status_code=500, detail="sync between mongo and oracle failed")
         return db_product
+ 
+def update_product_mongo(product: dict):
+    filter = {'_id' : product["_id"]}
+    print(filter)
+    new = { "$set" : product}
+    print(new)
+    return mongoDBSync.products.update_one(filter,new)
+       
+@app.put("/products/{product_id}", response_model=schemas.Product)
+def read_item(product_id: int, product: schemas.ProductUpdate,db: Session = Depends(get_db)):
+    db_product = crud.update_product(db, product_id, product)
+    if db_product is None:
+        raise HTTPException(status_code=400, detail="this product is already in DB")
+    else:
+        update_product_mongo(db_product.as_dict())
+        #if (res.upserted_id != db_product._id):
+        #    raise HTTPException(status_code=500, detail="sync between mongo and oracle failed mongoID - {} oracle - {}".format(res.upserted_id, db_product._id))
+    return db_product
 
 
 @app.get("/oracle/products/{product_id}", response_model=schemas.Product)
@@ -78,12 +96,6 @@ async def read_item(product_id: int):
         return query
     else:
         raise HTTPException(status_code=404, detail="Product not found")
-
-
-@app.put("/products/{product_id}", response_model=schemas.Product)
-def read_item(product_id: int, product: schemas.Product):
-    pass
-    return product
 
 
 @app.delete("/products/{product_id}", status_code = 200, response_model = None)

@@ -16,3 +16,9 @@ def create_product(db: Session, product: schemas.ProductCreate):
     db.commit()
     db.refresh(db_product)
     return db_product
+
+def update_product(db: Session, product_id: int ,product: schemas.Product):
+    updated_product = db.query(models.Product).filter(models.Product._id == product_id).first()
+    updated_product.update_values(product.dict())
+    db.commit()
+    return updated_product   

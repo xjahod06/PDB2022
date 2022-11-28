@@ -18,3 +18,17 @@ class Product(Base):
     currency = Column(String(6))
     in_stock = Column(Integer)
     added_at = Column(DateTime, default=datetime.utcnow, nullable=True)
+    
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+   
+    def update_values(self,newdata):
+        self.title = newdata["title"] if newdata["title"] is not None else self.title
+        self.images = newdata["images"] if newdata["images"] is not None else self.images
+        self.description = newdata["description"] if newdata["description"] is not None else self.description
+        self.sku = newdata["sku"] if newdata["sku"] is not None else self.sku
+        self.gtin13 = newdata["gtin13"] if newdata["gtin13"] is not None else self.gtin13
+        self.brand = newdata["brand"] if newdata["brand"] is not None else self.brand
+        self.price = newdata["price"] if newdata["price"] is not None else self.price
+        self.currency = newdata["currency"] if newdata["currency"] is not None else self.currency
+        self.in_stock = newdata["in_stock"] if newdata["in_stock"] is not None else self.in_stock

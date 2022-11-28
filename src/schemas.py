@@ -18,8 +18,17 @@ class ProductBase(BaseModel):
 class ProductCreate(ProductBase):
     pass
 
+class ProductUpdate(ProductBase):
+    title: Union[str,None] = None
+    sku: Union[int,None] = None
+    gtin13: Union[int,None] = None
+    brand: Union[str,None] = None
+    price: Union[float,None] = None
+    currency: Union[str,None] = None
+    in_stock: Union[int,None] = None
+    
 class Product(ProductBase):
-    product_id: int = Field(alias="_id")
+    _id: int = Field(alias="product_id")
     added_at: datetime
     
     class Config:
