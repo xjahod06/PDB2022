@@ -29,7 +29,7 @@ def load_df():
     df['in_stock'] = random.choices([0, 1, 2, 3], k=len(df))
     start = pd.to_datetime('2020-01-01')
     end = pd.to_datetime('2022-10-01')
-    #df['added_at'] = random_dates(start, end, len(df))
+    df['added_at'] = random_dates(start, end, len(df))
     #print(pd.to_datetime(df['added_at'],format='%d/%m/%Y').head())
     #df['added_at'].apply(lambda row: print(datetime.utcfromtimestamp(row.value)))
     #df['added_at'] = df['added_at'].astype(str)
