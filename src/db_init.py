@@ -30,7 +30,7 @@ if __name__ == '__main__':
     engine = connect_to_oracle(config['oracle_sql']['name'],config['oracle_sql']['password'])
     logging.debug("dropped database")
     models.Base.metadata.drop_all(bind=engine)
-    logging.debug("created database+")
+    logging.debug("created database")
     models.Base.metadata.create_all(bind=engine)
     
     logging.debug("loaded df")
@@ -46,3 +46,13 @@ if __name__ == '__main__':
         if ((index+1) % int(len(df)/10)) == 0:
             percentCount += 1
             logging.debug("loaded {} %...".format(percentCount*10))
+            
+    mongoDb = connect_to_mongo(config['mongo_db']['name'],config['mongo_db']['password'])
+    logging.debug("connected to mongoDB")
+    
+    #removed previously inserted data
+    mongoDb.products.delete_many({})
+    logging.debug("deleted previous data")
+    
+    logging.debug("uploading to mongoDB")
+    df_to_mongo(mongoDb,df)
