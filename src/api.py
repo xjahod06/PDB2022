@@ -152,12 +152,6 @@ async def read_item(product_id: int):
         return
 
 
-@app.get("/price/", response_model=List[schemas.Product])
-async def read_item(price: float):
-    query = await mongoDB.products.find({"price": price}).to_list(None)
-    return query
-
-
 @app.get("/priceRange/", response_model=List[schemas.Product])
 async def read_item(gt: Union[float, None] = 0, lt: Union[float, None] = None):
     if lt:
@@ -167,18 +161,14 @@ async def read_item(gt: Union[float, None] = 0, lt: Union[float, None] = None):
     return query
 
 
-@app.get("/addedAt/")
-def read_item(time: datetime):
-    pass
-    # TODO přesné datum přidání produktu (asi useless ?)
-    return None
-
-
-@app.get("/addedAtRange/")
-def read_item(gt: Union[datetime, None] = 0, lt: Union[datetime, None] = None):
-    pass
-    # TODO rozsad podle data přidání produktu
-    return None
+@app.get("/addedAtRange/", response_model=List[schemas.Product])
+async def read_item(gt: Union[datetime, None] = 0, lt: Union[datetime, None] = None):
+    if lt:
+        query = await mongoDB.products.find({"added_at": {"$gt": gt, "$lt": lt}}) \
+            .to_list(None)
+    else:
+        query = await mongoDB.products.find({"added_at": {"$gt": gt}}).to_list(None)
+    return query
 
 
 @app.get("/inStockRange/", response_model=List[schemas.Product])
@@ -189,13 +179,6 @@ async def read_item(gt: Union[int, None] = 0, lt: Union[int, None] = None):
     else:
         query = await mongoDB.products.find({"in_stock": {"$gt": gt}}).to_list(None)
     return query
-
-
-@app.get("/category/{category}")
-def read_item(category: str):
-    pass
-    # TODO categorie jsou v sku tak to rozkličovat a vratit
-    return None
 
 
 @app.get("/brand/{brand}", response_model=List[schemas.Product])
