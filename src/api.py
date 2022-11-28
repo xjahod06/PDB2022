@@ -62,6 +62,37 @@ def read_item(product_id: int, product: schemas.ProductUpdate,db: Session = Depe
     return db_product
 
 
+@app.put("/products/buy/{product_id}", response_model=schemas.Product)
+def read_item(product_id: int, count: int,db: Session = Depends(get_db)):
+    """Endpoint that is called when customer wants to buy an item"""
+    # check that at least one product was requested
+    if count <= 0:
+        raise HTTPException(status_code= 400, 
+            detail= f"{count} is incorrect number of products to buy")
+    
+    # check that requested product exists
+    db_product = crud.get_product(db, product_id)
+    if db_product is None:
+        raise HTTPException(status_code= 400, detail= f"Product doesn't exist")
+
+    # check that enough products are in stock
+    if db_product.in_stock < count:
+        error_msg = f"""Not enough products in store. Requested: {count}, In stock: {db_product.in_stock}"""
+        raise HTTPException(status_code = 400, detail = error_msg)
+    
+    # update in stock status
+    db_product.in_stock = db_product.in_stock - count
+    updated_product = crud.update_product(db, product_id, db_product)
+    if updated_product is None:
+        raise HTTPException(status_code=400, detail="Update to oracle failed")
+    else:
+        result = update_product_mongo(updated_product.as_dict())
+        print(result.upserted_id)
+        if (result.modified_count != 1):
+            raise HTTPException(status_code=500, detail="Update to mongo failed")
+    return updated_product
+
+
 @app.get("/oracle/products/{product_id}", response_model=schemas.Product)
 def read_product(product_id: int, db: Session = Depends(get_db)):
     db_product = crud.get_product(db, product_id=product_id)
