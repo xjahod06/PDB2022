@@ -58,3 +58,6 @@ class Order(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=True)
     
     products = relationship("ProductOrder", back_populates="order")
+
+    def as_dict(self):
+           return {c.name: getattr(self, c.name) for c in self.__table__.columns}

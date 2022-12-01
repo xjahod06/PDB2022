@@ -8,6 +8,7 @@ import schemas
 from db_connect import *
 import configparser
 
+
 config = configparser.ConfigParser()
 config.read('config.conf')
 mongoDBSync = connect_to_mongo(
@@ -18,8 +19,6 @@ engine = connect_to_oracle(
 sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 app = FastAPI()
-
-# Dependency
 
 
 def get_db():
@@ -32,6 +31,10 @@ def get_db():
 
 def create_product_mongo(product: dict):
     return mongoDBSync.products.insert_one(product)
+
+
+def create_order_mongo(order: dict):
+    return mongoDBSync.orders.insert_one(order)
 
 
 @app.post("/products/", response_model=schemas.Product)
@@ -47,17 +50,18 @@ def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)
                 status_code=500, detail="sync between mongo and oracle failed")
         return db_product
     
+    
 @app.post("/order/", response_model=schemas.Order)
-def create_order(order: schemas.OrderCreate,product_id : int, db: Session = Depends(get_db)):
-    db_order = crud.create_order(db=db, order=order,product_id=product_id)
+def create_order(order: schemas.OrderCreate,product_ids : List[int], db: Session = Depends(get_db)):
+    db_order = crud.create_order(db=db, order=order,product_ids=product_ids)
     if db_order is None:
         raise HTTPException(
             status_code=400, detail="db si broken :) ")
     else:
-        # res = (create_product_mongo(db_product.as_dict()))
-        # if (res.inserted_id != db_product._id):
-        #     raise HTTPException(
-        #         status_code=500, detail="sync between mongo and oracle failed")
+        res = (create_order_mongo(db_order.as_dict()))
+        if (res.inserted_id != db_order._id):
+            raise HTTPException(
+                status_code=500, detail="sync between mongo and oracle failed")
         return db_order
 
 
@@ -76,9 +80,10 @@ def read_item(product_id: int, product: schemas.ProductUpdate, db: Session = Dep
         raise HTTPException(
             status_code=400, detail="this product is already in DB")
     else:
-        update_product_mongo(db_product.as_dict())
-        # if (res.upserted_id != db_product._id):
-        #    raise HTTPException(status_code=500, detail="sync between mongo and oracle failed mongoID - {} oracle - {}".format(res.upserted_id, db_product._id))
+        result = update_product_mongo(db_product.as_dict())
+        if (result.modified_count != 1):
+            raise HTTPException(
+                status_code=500, detail="Update to mongo failed")
     return db_product
 
 
@@ -107,7 +112,6 @@ def read_item(product_id: int, count: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Update to oracle failed")
     else:
         result = update_product_mongo(updated_product.as_dict())
-        print(result.upserted_id)
         if (result.modified_count != 1):
             raise HTTPException(
                 status_code=500, detail="Update to mongo failed")

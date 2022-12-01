@@ -7,12 +7,14 @@ from datetime import datetime
 from db_connect import *
 import configparser
 
+
 config = configparser.ConfigParser()
 config.read('config.conf')
 mongoDB = async_connect_to_mongo(
     config['mongo_db']['name'], config['mongo_db']['password'])
 
 app = FastAPI()
+
 
 @app.get("/products/", response_model=List[schemas.Product])
 async def read_item():
@@ -76,4 +78,16 @@ async def read_item(brand: str):
 @app.get("/inDescription/{key_word}", response_model=List[schemas.Product])
 async def read_item(key_word: str):
     query = await mongoDB.products.find({"description": {"$regex": key_word}}).to_list(None)
+    return query
+
+
+@app.get("/orders/{order_id}", response_model=schemas.Order)
+async def read_item(order_id: int):
+    query = await mongoDB.orders.find_one({'_id': order_id})
+    return query
+
+
+@app.get("/orders/", response_model=List[schemas.Order])
+async def read_item():
+    query = await mongoDB.orders.find().to_list(None)
     return query

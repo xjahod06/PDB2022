@@ -62,3 +62,4 @@ if __name__ == '__main__':
 
     logging.debug("uploading to mongoDB")
     df_to_mongo(mongoDb, df)
+    mongoDb.create_collection('orders')

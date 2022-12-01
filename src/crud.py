@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 import models
 import schemas
 from datetime import datetime
+from typing import List
 
 
 def get_product(db: Session, product_id: int):
@@ -27,14 +28,17 @@ def update_product(db: Session, product_id: int, product: schemas.Product):
     db.commit()
     return updated_product
 
-def create_order(db: Session, order: schemas.OrderCreate, product_id: int):
-    db_product = db.query(models.Product).filter(models.Product._id == product_id).first()
-    print(db_product.as_dict())
-    db_product_order = models.ProductOrder(amount=1)
-    db_product_order.product = db_product
+
+def create_order(db: Session, order: schemas.OrderCreate, product_ids: List[int]):
     db_order = models.Order(**order.dict())
-    db_order.products.append(db_product_order)
+
+    for product_id in product_ids:
+        db_product = db.query(models.Product).filter(models.Product._id == product_id).first()
+        db_product_order = models.ProductOrder(amount=1)
+        db_product_order.product = db_product
+        db_order.products.append(db_product_order)
     db.add(db_order)
+
     db.commit()
     db.refresh(db_order)
     return db_order
