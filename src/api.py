@@ -52,6 +52,19 @@ def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)
             raise HTTPException(
                 status_code=500, detail="sync between mongo and oracle failed")
         return db_product
+    
+@app.post("/oracle/order/", response_model=schemas.Order)
+def create_order(order: schemas.OrderCreate,product_id : int, db: Session = Depends(get_db)):
+    db_order = crud.create_order(db=db, order=order,product_id=product_id)
+    if db_order is None:
+        raise HTTPException(
+            status_code=400, detail="db si broken :) ")
+    else:
+        # res = (create_product_mongo(db_product.as_dict()))
+        # if (res.inserted_id != db_product._id):
+        #     raise HTTPException(
+        #         status_code=500, detail="sync between mongo and oracle failed")
+        return db_order
 
 
 def update_product_mongo(product: dict):

@@ -32,7 +32,7 @@ class ProductUpdate(ProductBase):
 
 
 class Product(ProductBase):
-    _id: int = Field(alias="product_id")
+    _id: int
     added_at: datetime
 
     class Config:
@@ -50,7 +50,7 @@ class OrderCreate(OrderBase):
     
 class Order(OrderBase):
     _id : int
-    created_at : int
+    created_at : datetime
     
     class Config:
         orm_mode = True

@@ -51,8 +51,8 @@ class Order(Base):
     
     _id = Column(Integer, Identity(start=1), primary_key=True)
     price = Column(Float)
-    user_information = Column(Text)
-    transport_information = Column(Text)
+    user_information = Column(UnicodeText, default=None)
+    transport_information = Column(UnicodeText, default=None)
     status = Column(String(25))
     query = Column(String(100))
     created_at = Column(DateTime, default=datetime.utcnow, nullable=True)
