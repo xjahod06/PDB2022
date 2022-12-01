@@ -37,3 +37,20 @@ class Product(ProductBase):
 
     class Config:
         orm_mode = True
+        
+class OrderBase(BaseModel):
+    price : int
+    user_information : str
+    transport_information : str
+    status : str
+    query : str
+    
+class OrderCreate(OrderBase):
+    pass
+    
+class Order(OrderBase):
+    _id : int
+    created_at : int
+    
+    class Config:
+        orm_mode = True

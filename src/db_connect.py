@@ -31,17 +31,17 @@ def connect_to_oracle_cursor(name, password):
 
 def df_to_sql_db(engine, df):
     df_schema = {
-        "_id": Integer,
-        "title": String(256),
-        "images": Text,
-        "description": UnicodeText,
-        "sku": Integer,
-        "gtin13": Integer,
-        "brand": String(50),
-        "price": Float,
-        "currency": String(6),
-        "in_stock": Integer,
-        # "added_at" : DateTime,
+        "_id" : Integer,
+        "title" : String(256),
+        "images" : Text,
+        "description" : UnicodeText,
+        "sku" : Integer,
+        "gtin13" : Integer,
+        "brand" : String(50),
+        "price" : Float,
+        "currency" : String(6),
+        "in_stock" : Integer,
+        "added_at" : DateTime,
     }
     with engine.connect() as connection:
         df.to_sql('products', connection, if_exists='append',
