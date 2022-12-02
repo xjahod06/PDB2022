@@ -41,6 +41,4 @@ def load_df():
 
 if __name__ == "__main__":
     df = load_df()
-    print(df.head())
-    print(df.dtypes)
     df.to_csv('pdb_dataset.csv')

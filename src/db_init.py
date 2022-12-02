@@ -27,7 +27,7 @@ def create_product(product: pd.DataFrame, db: Session = Depends(get_db)):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
     config = configparser.ConfigParser()
     config.read('config.conf')
     engine = connect_to_oracle(
@@ -58,6 +58,7 @@ if __name__ == '__main__':
 
     # removed previously inserted data
     mongoDb.products.delete_many({})
+    mongoDb.orders.drop()
     logging.debug("deleted previous data")
 
     logging.debug("uploading to mongoDB")
