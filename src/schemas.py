@@ -39,17 +39,23 @@ class Product(ProductBase):
         orm_mode = True
         
 class OrderBase(BaseModel):
-    price : int
     user_information : str
     transport_information : str
-    status : str
     query : str
     
 class OrderCreate(OrderBase):
     pass
+
+class OrderUpdate(OrderBase):
+    user_information : Union[str,None] = None
+    transport_information : Union[str,None] = None
+    query : Union[str,None] = None
+    status : Union[str,None] = None
     
 class Order(OrderBase):
     _id : int
+    status : str
+    price : int
     created_at : datetime
     
     class Config:
