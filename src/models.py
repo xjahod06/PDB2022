@@ -61,3 +61,9 @@ class Order(Base):
 
     def as_dict(self):
            return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    
+    def update_values(self,newdata):
+        self.price = newdata["price"] if newdata["price"] is not None else self.price
+        self.user_information = newdata["user_information"] if newdata["user_information"] is not None else self.user_information
+        self.transport_information = newdata["transport_information"] if newdata["transport_information"] is not None else self.transport_information
+        self.status = newdata["status"] if newdata["status"] is not None else self.status
