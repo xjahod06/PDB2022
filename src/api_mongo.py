@@ -75,16 +75,19 @@ async def read_item(brand: str):
     return query
 
 
-@app.get("/inDescription/{key_word}", response_model=List[schemas.Product])
+@app.get("/inDescription/{key_word}", response_model=Union[schemas.Product, None])
 async def read_item(key_word: str):
-    query = await mongoDB.products.find({"description": {"$regex": key_word}}).to_list(None)
+    query = await mongoDB.products.find_one({"description": {"$regex": key_word}})
     return query
 
 
-@app.get("/orders/{order_id}", response_model=schemas.Order)
+@app.get("/orders/{order_id}", response_model=Union[schemas.Order, None])
 async def read_item(order_id: int):
     query = await mongoDB.orders.find_one({'_id': order_id})
-    return query
+    if query:
+        return query
+    else:
+        raise HTTPException(status_code=404, detail="Order not found")
 
 
 @app.get("/orders/", response_model=List[schemas.Order])

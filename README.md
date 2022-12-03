@@ -7,7 +7,7 @@ docker
 docker compose
 
 ## Instalace
-Prvně za zapúotřebí spustit docker v separátním okně pomocí příkazu `docker-compose up`.
+Prvně za zapotřebí spustit docker v separátním okně pomocí příkazu `docker-compose up`.
 Následně stačí spustit script `install.sh` s argumety vašeho přihlášení do školní oracle SQL, tyto údaje budou uloženy v configuračním souboru API. Dále se stáhnou data, které se importují do oracle DB a zároveň do monga.
 `bash install.sh name password`
 
@@ -25,3 +25,7 @@ uvicorn api_mongo:app --reload --port 8001
 ```
 
 které budou po spuštění dostupné na adresách `http://localhost:8000/` a `http://localhost:8001/` případně je možné přejít na dokumentaci na endpointu `/docs`
+
+
+## Testy
+testy sú implementované pomocou nástroja `pytest`, stačí zo zložky `/src` zavolať skript `run_tests.sh` a vykonajú sa všetky dostupné testy. Upozornenie: celá množina testov môže bežať v radoch minút.
