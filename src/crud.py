@@ -21,11 +21,11 @@ def create_product(db: Session, product: schemas.ProductCreate):
     return db_product
 
 
-def update_product(db: Session, product_id: int, product: schemas.Product):
+def update_product(db: Session, product_id: int, product: schemas.ProductUpdate):
     updated_product = get_product(db,product_id)
     if updated_product is None:
         return None
-    if type(product) is schemas.Product:
+    if type(product) is schemas.ProductUpdate:
         updated_product.update_values(product.dict())
     else:
         updated_product.update_values(product.as_dict())
@@ -50,11 +50,9 @@ def create_order(db: Session, order: schemas.OrderCreate, product_ids: List[int]
     db.refresh(db_order)
     return db_order
 
-def update_order(db:Session,order_id: int, order: schemas.Order):
+def update_order(db:Session,order_id: int, order: schemas.OrderUpdate):
     update_order = get_order(db,order_id)
-    if update_order is None:
-        return None
-    if type(order) is schemas.Order:
+    if type(order) is schemas.OrderUpdate:
         update_order.update_values(order.dict())
     else:
         update_order.update_values(order.as_dict())
