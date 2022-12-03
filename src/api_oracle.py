@@ -66,7 +66,7 @@ def create_order(order: schemas.OrderCreate,product_ids : List[int],amounts : Li
 def update_order_mongo(order: dict):
     filter = {'_id': order["_id"]}
     new = {"$set": order}
-    return mongoDBSync.order.update_one(filter, new)
+    return mongoDBSync.orders.update_one(filter, new)
 
 @app.put("/order/{order_id}", response_model=schemas.Order)
 def update_order(order_id: int, order: schemas.OrderUpdate,db: Session = Depends(get_db)):
