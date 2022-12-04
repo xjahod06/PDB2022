@@ -22,4 +22,8 @@ pytest -v test_oracle.py::test_post_orders &&
 pytest -v test_oracle.py::test_buy_product_new_order && 
 pytest -v test_oracle.py::test_buy_product_existing_order && 
 pytest -v test_oracle.py::test_put_product && 
-pytest -v test_oracle.py::test_get_products
+pytest -v test_oracle.py::test_get_products &&
+pytest -v test_oracle.py::test_buy_product_non_exist &&
+pytest -v test_oracle.py::test_buy_product_not_in_stock &&
+pytest -v test_oracle.py::test_buy_product_zero &&
+pytest -v test_oracle.py::test_buy_product_non_exist_order

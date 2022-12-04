@@ -334,6 +334,57 @@ def test_buy_product_existing_order(create_and_delete_order_product):
     connection.execute(query)
 
 
+def test_buy_product_non_exist():
+    body = {
+        "user_information": "test user info",
+        "transport_information": "test transport info",
+        "query": "test query",
+    }
+    params = {'count': 2, 'order_id': test_order['_id']}
+    response = client.put("/products/buy/111111111111111111111", params=params, json=body)
+    assert response.status_code == 400
+    assert response.json()['detail'] == "Product doesn't exist"
+
+
+def test_buy_product_not_in_stock(create_and_delete_test_product_oracle):
+    body = {
+        "user_information": "test user info",
+        "transport_information": "test transport info",
+        "query": "test query",
+    }
+    params = {'count': 5, 'order_id': test_order['_id']}
+    response = client.put(f"/products/buy/{test_product['_id']}", params=params, json=body)
+    assert response.status_code == 400
+    assert response.json()['detail'] == \
+    f"""Not enough products in store. Requested: 5, In stock: {test_product['in_stock']}"""
+
+
+def test_buy_product_zero(create_and_delete_test_product_oracle):
+    body = {
+        "user_information": "test user info",
+        "transport_information": "test transport info",
+        "query": "test query",
+    }
+    params = {'count': 0, 'order_id': test_order['_id']}
+    response = client.put(f"/products/buy/{test_product['_id']}", params=params, json=body)
+    assert response.status_code == 400
+    assert response.json()['detail'] == "0 is incorrect number of products to buy"
+
+
+def test_buy_product_non_exist_order(create_and_delete_test_product_oracle):
+    body = {
+        "user_information": "test user info",
+        "transport_information": "test transport info",
+        "query": "test query",
+    }
+    params = {'count': 2, 'order_id': 11111111111111}
+    response = client.put(f"/products/buy/{test_product['_id']}", params=params, json=body)
+    assert response.status_code == 400
+    assert response.json()['detail'] == "Order doesn't exist"
+
+
+
+
 if __name__ == '__main__':
     mongoDB.orders.delete_many({})
     mongoDB.products.delete_many({'_id': 69696969})
