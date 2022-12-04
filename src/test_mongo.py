@@ -16,7 +16,7 @@ mongoDB = connect_to_mongo(
     config['mongo_db']['name'], config['mongo_db']['password'])
 
 test_product = {
-    "_id": 123456789987654321,
+    "_id": 69696969,
     "title": "Test product",
     "images": "https://test.product.url",
     "description": "This is a description of an abstract test product",
@@ -30,7 +30,7 @@ test_product = {
 }
 
 test_order = {
-    '_id': 123456789987654321,
+    '_id': 420420420,
     'status': "Test order status",
     'price': 69,
     'created_at': datetime.now(),
@@ -45,14 +45,14 @@ test_order = {
 def create_and_delete_test_product():
     mongoDB.products.insert_one(test_product)
     yield test_product
-    mongoDB.products.delete_one({"title": "Test product"})
+    mongoDB.products.delete_one({"_id": 69696969})
 
 
 @pytest.fixture
 def create_and_delete_test_order():
     mongoDB.orders.insert_one(test_order)
     yield test_order
-    mongoDB.orders.delete_one({"_id": 123456789987654321})
+    mongoDB.orders.delete_one({"_id": 420420420})
 
 
 # ============================TESTS==================================
@@ -165,5 +165,5 @@ def test_get_order_not_exist():
 
 
 if __name__ == '__main__':
-    mongoDB.products.delete_one({"title": "Test product"})
-    mongoDB.orders.delete_one({"_id": 123456789987654321})
+    mongoDB.products.delete_one({"_id": 69696969})
+    mongoDB.orders.delete_one({"_id": 420420420})
