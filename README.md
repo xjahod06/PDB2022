@@ -36,3 +36,7 @@ které budou po spuštění dostupné na adresách `http://localhost:8000/` a `h
 ## Testy
 
 testy sú implementované pomocou nástroja `pytest`, stačí zo zložky `/src` zavolať skript `run_tests.sh` a vykonajú sa všetky dostupné testy. Upozornenie: celá množina testov môže bežať v radoch minút.
+
+## Hodnocení
+pri konzistentni operaci na relacni databazi je vhodne ji celou dat do transakce nebo zamykat, jinak muze neco vlezt mezi kontrolu (dotaz) a modifikaci (update/ins/del; napr. v buy product po kontrole order); jinak hezke, ikdyz dokumentace mohla byt obsahlejsi (v druhe casti reseni)
+`19/20`
